@@ -42,8 +42,12 @@ package object Package1 {
   type Now[X] = X
 }
 
-object FooEither extends Foo[Package1.EitherString] {
+object FooEitherString extends Foo[Package1.EitherString] {
   def create(i: Int): Package1.EitherString[Int] = Right(i)
+}
+
+object FooEitherString2 extends Foo[Either[String, ?]] {
+  def create(i: Int): Either[String, Int] = Right(i)
 }
 
 object FooId extends Foo[Package1.Id] {
@@ -103,7 +107,7 @@ object Execution {
 
 
   def echo[C[_]](implicit t: Terminal[C], e: Execution[C]): C[String] =
-    t.read.flatMap { in: String =>
+    t.read().flatMap { in: String =>
       t.write(in).map { _: Unit =>
         in
       }
