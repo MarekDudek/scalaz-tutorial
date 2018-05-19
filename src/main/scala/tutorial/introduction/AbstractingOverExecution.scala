@@ -36,17 +36,17 @@ object FooList extends Foo[List] {
 
 // type alias trick
 
-package object SomeObject {
+package object Package1 {
   type EitherString[T] = Either[String, T]
   type Id[T] = T
   type Now[X] = X
 }
 
-object FooEither extends Foo[SomeObject.EitherString] {
-  def create(i: Int): SomeObject.EitherString[Int] = Right(i)
+object FooEither extends Foo[Package1.EitherString] {
+  def create(i: Int): Package1.EitherString[Int] = Right(i)
 }
 
-object FooId extends Foo[SomeObject.Id] {
+object FooId extends Foo[Package1.Id] {
   def create(i: Int): Int = i
 }
 
@@ -59,7 +59,7 @@ trait Terminal[C[_]] {
   def write(t: String): C[Unit]
 }
 
-object TerminalSync extends Terminal[SomeObject.Now] {
+object TerminalSync extends Terminal[Package1.Now] {
 
   override def read(): String = ???
 
@@ -80,7 +80,7 @@ trait Execution[C[_]] {
   def create[B](b: B): C[B]
 }
 
-package object Some2 {
+package object Package2 {
 
   def echo[C[_]](t: Terminal[C], e: Execution[C]): C[String] =
     e.doAndThen(t.read) { in: String =>
@@ -88,4 +88,30 @@ package object Some2 {
         e.create(in)
       }
     }
+}
+
+object Execution {
+
+  implicit class Ops[A, C[_]](c: C[A]) {
+
+    def flatMap[B](f: A => C[B])(implicit e: Execution[C]): C[B] =
+      e.doAndThen(c)(f)
+
+    def map[B](f: A => B)(implicit e: Execution[C]): C[B] =
+      e.doAndThen(c)(f andThen e.create)
+  }
+
+
+  def echo[C[_]](implicit t: Terminal[C], e: Execution[C]): C[String] =
+    t.read.flatMap { in: String =>
+      t.write(in).map { _: Unit =>
+        in
+      }
+    }
+
+  def echo2[C[_]](implicit t: Terminal[C], e: Execution[C]): C[String] =
+    for {
+      in <- t.read()
+      _ <- t.write(in)
+    } yield in
 }
