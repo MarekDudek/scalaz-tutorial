@@ -29,4 +29,34 @@ class SyntaxSugarSuite extends FunSuite {
     assert(r1 == r2)
     assert(r1.contains(6))
   }
+
+  test("assignments") {
+    // given
+    val a = Option(1)
+    val b = Option(2)
+    val c = Option(3)
+    // when
+    val r1 = for {
+      i <- a
+      j <- b
+      ij = i + j
+      k <- c
+    } yield ij + k
+    // when
+    val r2 = a.flatMap {
+      i =>
+        b.map {
+          j =>
+            (j, i + j)
+        }.flatMap {
+          case (j, ij) =>
+            c.map {
+              k => ij + k
+            }
+        }
+    }
+    // then
+    assert(r1 == r2)
+    assert(r1.contains(6))
+  }
 }
