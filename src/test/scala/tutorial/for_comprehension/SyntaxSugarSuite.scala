@@ -59,4 +59,32 @@ class SyntaxSugarSuite extends FunSuite {
     assert(r1 == r2)
     assert(r1.contains(6))
   }
+
+  test("filter in for-comprehension") {
+    // given
+    val a = Option(1)
+    val b = Option(2)
+    val c = Option(3)
+    // when
+    var r1 = for {
+      i <- a
+      j <- b
+      if i < j
+      k <- c
+    } yield i + j + k
+    var r2 = a.flatMap {
+      i =>
+        b.withFilter {
+          j => i < j
+        }.flatMap {
+          j =>
+            c.map {
+              k => i + j + k
+            }
+        }
+    }
+    // then
+    assert(r1 == r2)
+    assert(r1.contains(6))
+  }
 }
