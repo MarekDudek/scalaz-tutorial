@@ -87,4 +87,21 @@ class SyntaxSugarSuite extends FunSuite {
     assert(r1 == r2)
     assert(r1.contains(6))
   }
+
+  test("for-each") {
+    // given
+    val a = Option(1)
+    val b = Option(2)
+    // when
+    for {
+      i <- a
+      j <- b
+    } println(s"$i-$j")
+    // when
+    a.foreach {
+      i => b.foreach {
+        j => println(s"$i-$j")
+      }
+    }
+  }
 }
