@@ -2,6 +2,9 @@ package tutorial.for_comprehension
 
 import org.scalatest.FunSuite
 
+import scala.reflect.runtime.universe._
+
+
 class SyntaxSugarSuite extends FunSuite {
 
   test("for comprehension on options") {
@@ -49,7 +52,7 @@ class SyntaxSugarSuite extends FunSuite {
           j =>
             (j, i + j)
         }.flatMap {
-          case (j, ij) =>
+          case (_, ij) =>
             c.map {
               k => ij + k
             }
@@ -66,13 +69,13 @@ class SyntaxSugarSuite extends FunSuite {
     val b = Option(2)
     val c = Option(3)
     // when
-    var r1 = for {
+    val r1 = for {
       i <- a
       j <- b
       if i < j
       k <- c
     } yield i + j + k
-    var r2 = a.flatMap {
+    val r2 = a.flatMap {
       i =>
         b.withFilter {
           j => i < j
@@ -99,9 +102,33 @@ class SyntaxSugarSuite extends FunSuite {
     } println(s"$i-$j")
     // when
     a.foreach {
-      i => b.foreach {
-        j => println(s"$i-$j")
+      i =>
+        b.foreach {
+          j => println(s"$i-$j")
+        }
+    }
+  }
+
+  test("desugaring") {
+    // given
+    val a = Option(1)
+    val b = Option(2)
+    // when
+    val value1 = reify {
+      for {
+        i <- a
+        j <- b
+      } yield i + j
+    }
+    // when
+    val value2 = reify {
+      a.flatMap {
+        i => b.map {
+          j => i + j
+        }
       }
     }
+    // then
+    assert(value1.toString() == value2.toString())
   }
 }
