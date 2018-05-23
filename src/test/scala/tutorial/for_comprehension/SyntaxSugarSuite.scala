@@ -123,12 +123,45 @@ class SyntaxSugarSuite extends FunSuite {
     // when
     val value2 = reify {
       a.flatMap {
-        i => b.map {
-          j => i + j
-        }
+        i =>
+          b.map {
+            j => i + j
+          }
       }
     }
     // then
     assert(value1.toString() == value2.toString())
+  }
+
+  import scala.concurrent._
+  import ExecutionContext.Implicits.global
+
+  def expensiveCalc(): Int = 1
+
+  def anotherExpensiveCalc(): Int = 2
+
+  test("futures in for-comprehension") {
+    // when
+    val value1 = for {
+      i <- Future {
+        expensiveCalc()
+      }
+      j <- Future {
+        anotherExpensiveCalc()
+      }
+    } yield i + j
+    println(value1)
+    // when
+    val a = Future {
+      expensiveCalc()
+    }
+    val b = Future {
+      anotherExpensiveCalc()
+    }
+    val value2 = for {
+      i <- a
+      j <- b
+    } yield i + j
+    println(value2)
   }
 }
