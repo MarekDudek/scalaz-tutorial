@@ -1,9 +1,11 @@
 package tutorial.for_comprehension
 
 import org.scalatest.FunSuite
+import scalaz.Scalaz._
+import scalaz._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future, duration}
+import scala.concurrent._
 
 class GymnasticsSuite extends FunSuite {
 
@@ -133,6 +135,23 @@ class GymnasticsSuite extends FunSuite {
         b <- getB2
       } yield a * b
     } yield c
+    // then
+    val result = Await.result(futureResult, duration.Duration.Inf)
+    assert(result == 0)
+  }
+
+
+  test("early exit with success, asynch, monadic way") {
+    // when
+    val futureResult =
+      for {
+        a <- getA2
+        c <- if (a <= 0) 0.pure[Future]
+        else
+          for {
+            b <- getB2
+          } yield a * b
+      } yield c
     // then
     val result = Await.result(futureResult, duration.Duration.Inf)
     assert(result == 0)
