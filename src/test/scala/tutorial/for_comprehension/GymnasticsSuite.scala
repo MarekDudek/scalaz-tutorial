@@ -76,4 +76,65 @@ class GymnasticsSuite extends FunSuite {
     // then
     assert(value contains (key + key))
   }
+
+  def getA1: Int = -1
+
+  def getB1: Int = 10
+
+  test("early exit with error, OOP way") {
+    val a = getA1
+    assertThrows[IllegalArgumentException] {
+      require(a > 0, s"$a must be positive")
+      val b = a * 10
+      assert(b == -10)
+    }
+  }
+
+  def getA2: Future[Int] = Future {
+    -1
+  }
+
+  def getB2: Future[Int] = Future {
+    10
+  }
+
+  def error(msg: String): Future[Nothing] =
+    Future.failed(new RuntimeException(msg))
+
+  test("early exit with error, asynch way") {
+    // when
+    val result = for {
+      a <- getA2
+      b <- if (a <= 0) error(s"$a must be positive")
+      else Future.successful(a)
+    } yield b * 10
+    // then
+    assertThrows[RuntimeException] {
+      Await.result(result, duration.Duration.Inf)
+    }
+  }
+
+  test("early exit with success, OOP way") {
+    // when
+    val a = getA1
+    val result =
+      if (a <= 0) 0
+      else a * getB1
+    // then
+    assert(result == 0)
+  }
+
+  test("early exit with success, asynch way") {
+    // when
+    val futureResult = for {
+      a <- getA2
+      c <- if (a <= 0) Future.successful(0)
+      else for {
+        b <- getB2
+      } yield a * b
+    } yield c
+    // then
+    val result = Await.result(futureResult, duration.Duration.Inf)
+    assert(result == 0)
+  }
 }
