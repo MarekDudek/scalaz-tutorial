@@ -1,17 +1,23 @@
 package tutorial.for_comprehension
 
 import org.scalatest.FunSuite
+import scalaz.Scalaz._
+import scalaz._
 
 import scala.concurrent.ExecutionContext.Implicits.global
-import scala.concurrent.{Await, Future, duration}
+import scala.concurrent._
 
 class GymnasticsSuite extends FunSuite {
 
   def getFromRedis(s: String): Option[String] = {
-    if (s == "sth")
+    if (s == "sth") {
+      println("getting from Redis 1")
       None
-    else
+    }
+    else {
+      println("getting from SQL 1")
       Some(s)
+    }
   }
 
   def getFromSql(s: String): Option[String] = {
@@ -29,7 +35,7 @@ class GymnasticsSuite extends FunSuite {
 
   def getFromRedis2(s: String): Future[Option[String]] = {
     Future {
-      println("getting from Redis")
+      println("getting from Redis 2")
       if (s == "sth")
         None
       else
@@ -39,7 +45,7 @@ class GymnasticsSuite extends FunSuite {
 
   def getFromSql2(s: String): Future[Option[String]] = {
     Future {
-      println("getting from SQL")
+      println("getting from SQL 2")
       Some(s + s)
     }
   }
@@ -72,5 +78,83 @@ class GymnasticsSuite extends FunSuite {
     // then
     println(value)
     //assert(value contains (key + key))
+  }
+
+  def getA1: Int = -1
+
+  def getB1: Int = 10
+
+  test("early exit with error, OOP way") {
+    val a = getA1
+    assertThrows[IllegalArgumentException] {
+      require(a > 0, s"$a must be positive")
+      val b = a * 10
+      assert(b == -10)
+    }
+  }
+
+  def getA2: Future[Int] = Future {
+    -1
+  }
+
+  def getB2: Future[Int] = Future {
+    10
+  }
+
+  def error(msg: String): Future[Nothing] =
+    Future.failed(new RuntimeException(msg))
+
+  test("early exit with error, asynch way") {
+    // when
+    val result = for {
+      a <- getA2
+      b <- if (a <= 0) error(s"$a must be positive")
+      else Future.successful(a)
+    } yield b * 10
+    // then
+    assertThrows[RuntimeException] {
+      Await.result(result, duration.Duration.Inf)
+    }
+  }
+
+  test("early exit with success, OOP way") {
+    // when
+    val a = getA1
+    val result =
+      if (a <= 0) 0
+      else a * getB1
+    // then
+    assert(result == 0)
+  }
+
+  test("early exit with success, asynch way") {
+    // when
+    val futureResult = for {
+      a <- getA2
+      c <- if (a <= 0) Future.successful(0)
+      else for {
+        b <- getB2
+      } yield a * b
+    } yield c
+    // then
+    val result = Await.result(futureResult, duration.Duration.Inf)
+    assert(result == 0)
+  }
+
+
+  test("early exit with success, asynch, monadic way") {
+    // when
+    val futureResult =
+      for {
+        a <- getA2
+        c <- if (a <= 0) 0.pure[Future]
+        else
+          for {
+            b <- getB2
+          } yield a * b
+      } yield c
+    // then
+    val result = Await.result(futureResult, duration.Duration.Inf)
+    assert(result == 0)
   }
 }
