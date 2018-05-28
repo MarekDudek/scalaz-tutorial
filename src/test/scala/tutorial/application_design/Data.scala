@@ -14,10 +14,10 @@ object Data {
 
   import java.time.Instant.parse
 
-  val time1 = parse("2017-03-03T18:07:00.000+01:00[Europe/London]")
-  val time2 = parse("2017-03-03T18:59:00.000+01:00[Europe/London]")
-  val time3 = parse("2017-03-03T19:06:00.000+01:00[Europe/London]")
-  val time4 = parse("2017-03-03T23:07:00.000+01:00[Europe/London]")
+  val time1: Instant = parse("2017-03-03T18:07:00.00Z")
+  val time2: Instant = parse("2017-03-03T18:59:00.00Z")
+  val time3: Instant = parse("2017-03-03T19:06:00.00Z")
+  val time4: Instant = parse("2017-03-03T23:07:00.00Z")
 
   val needsAgents = WorldView(5, 0, managed, Map.empty, Map.empty, time1)
 }
