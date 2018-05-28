@@ -25,6 +25,11 @@ final class DynAgents[F[_]]
       mt <- m.getTime
     } yield WorldView(db, da, mm, ma, Map.empty, mt)
 
+  def initial2: F[WorldView] =
+    (d.getBacklog |@| d.getAgents |@| m.getManaged |@| m.getAlive |@| m.getTime) {
+      case (db, da, mm, ma, mt) => WorldView(db, da, mm, ma, Map.empty, mt)
+    }
+
   def update(old: WorldView): F[WorldView] =
     for {
       snap <- initial
@@ -50,6 +55,22 @@ final class DynAgents[F[_]]
               update = world.copy(pending = world.pending + (n -> world.time))
             } yield update
         }
+      case _ => world.pure[F]
+    }
+
+  def act2(world: WorldView): F[WorldView] =
+    world match {
+      case NeedsAgent(node) =>
+        for {
+          _ <- m.start(node)
+          update = world.copy(pending = Map(node -> world.time))
+        } yield update
+      case Stale(nodes) =>
+        for {
+          stopped <- nodes.traverse(m.stop)
+          updates = stopped.map(_ -> world.time).toList.toMap
+          update = world.copy(pending = world.pending ++ updates)
+        } yield update
       case _ => world.pure[F]
     }
 
