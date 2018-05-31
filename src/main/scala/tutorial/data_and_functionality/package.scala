@@ -1,5 +1,6 @@
 package tutorial
 
+
 package object data_and_functionality {
 
   // values
@@ -66,6 +67,64 @@ package object data_and_functionality {
 
   final case class AcceptedBoolean(value: Boolean) extends Accepted2
 
+  // convey information
+
+  final case class Person private(name: String, age: Int)
+
+  object Person {
+    def apply(name: String, age: C): Either[String, Person] = {
+      if (name.nonEmpty && age > 0) Right(new Person(name, age))
+      else Left(s"bad input: $name, $age")
+    }
+  }
+
+  val person: Either[String, Person] = Person("Marek", 42)
+
+  def welcome(person: Person): String =
+    s"${person.name} you look wonderfull at ${person.age}"
+
+  val w: Either[String, String] =
+    for {
+      person <- Person("", -1)
+    } yield welcome(person)
+
+  import eu.timepit.refined
+  import eu.timepit.refined.collection.NonEmpty
+  import eu.timepit.refined.numeric.Positive
+  import refined.api.Refined
+
+  final case class Person2
+  (
+    name: String Refined NonEmpty,
+    age: Int Refined Positive
+  )
+
+  import refined.refineV
+
+  val name: Either[String, Refined[B, NonEmpty]] = refineV[NonEmpty]("Sam")
+  val age: Either[String, Refined[C, Positive]] = refineV[Positive](23)
+
+  import refined.auto._
+
+  val name2: String Refined NonEmpty = "Sam"
+  val age2: Int Refined Positive = 23
+
+  val p2: Person2 = Person2(name2, age2)
+  val p3: Person2 = Person2("Sam", 23)
+  //val p4: Person2 = Person2("", 23)
+
+  import refined.W
+  import refined.boolean.And
+  import refined.collection.MaxSize
+
+  type Name = NonEmpty And MaxSize[W.`10`.T]
+  type Age = Positive And MaxSize[W.`120`.T]
+
+  final case class Person3
+  (
+    name: String Refined Name,
+    age: Int Refined Age
+  )
 }
 
 
