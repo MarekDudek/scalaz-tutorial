@@ -19,6 +19,9 @@ libraryDependencies += "org.scalatest" % "scalatest_2.12" % "3.0.5" % "test"
 
 libraryDependencies += "eu.timepit" %% "refined-scalaz" % "0.8.7"
 
+libraryDependencies += "com.chuusai" %% "shapeless" % "2.3.3"
+
+
 addCompilerPlugin("org.spire-math" %% "kind-projector" % "0.9.6")
 addCompilerPlugin("org.scalamacros" % "paradise" % "2.1.1" cross CrossVersion.full)
 addCompilerPlugin("com.olegpy" %% "better-monadic-for" % "0.2.4")
