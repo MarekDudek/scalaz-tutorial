@@ -1,5 +1,7 @@
 package tutorial
 
+import eu.timepit.refined.api.Validate
+
 
 package object data_and_functionality {
 
@@ -125,6 +127,15 @@ package object data_and_functionality {
     name: String Refined Name,
     age: Int Refined Age
   )
+
+  final case class Url()
+
+  object Url {
+    implicit def urlValidate: refined.api.Validate.Plain[String, Url] =
+      Validate.fromPartial(new java.net.URL(_), "Url", Url())
+  }
+
+  val onet: Either[String, Refined[B, Url]] = refineV[Url]("www.onet.pl")
 }
 
 
