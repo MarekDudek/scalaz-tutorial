@@ -3,7 +3,7 @@ package tutorial.data_and_functionality
 import java.lang.Math.PI
 
 import org.scalatest.{FlatSpec, Matchers}
-import tutorial.data_and_functionality.functionality.FunctionsForMyNumeric
+import tutorial.data_and_functionality.functionality.FunctionsForNumeric
 
 import scala.language.implicitConversions
 
@@ -38,12 +38,18 @@ class FunctionalitySuite extends FlatSpec with Matchers {
     (PI / 2).sin3 shouldBe 1.0
   }
 
-  "function with implicit trait argument" should "be possible to calll" in {
-
-    import FunctionsForMyNumeric._
-
-    //val s = signOfTheTimes(12)(My)
+  "function with implicit trait argument" should "be possible to call" in {
+    import FunctionsForNumeric._
+    signOfTheTimes(12) shouldBe (-144)
+    signOfTheTimes2(12) shouldBe (-144)
+    signOfTheTimes3(12) shouldBe (-144)
   }
+
+  "function with my numeric" should "also work" in {
+    import tutorial.data_and_functionality.functionality.FunctionsForMyNumeric._
+    signOfTheTimes4(12) shouldBe (-144)
+  }
+
 }
 
 object ImplicitHolder {

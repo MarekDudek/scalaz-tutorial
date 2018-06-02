@@ -29,14 +29,48 @@ trait MyNumeric[T] extends MyOrdering[T] {
   def abs(x: T): T = if (lt(x, zero)) negate(x) else x
 }
 
-object FunctionsForMyNumeric {
+object Numeric2 {
 
-  def signOfTheTimes[T](t: T)(implicit N: MyNumeric[T]): T = {
+  def apply[T](implicit numeric: Numeric[T]): Numeric[T] = numeric
+
+  object ops {
+
+    implicit class NumericOps[T](t: T)(implicit N: Numeric[T]) {
+
+      def +(o: T): T = N.plus(t, o)
+
+      def *(o: T): T = N.times(t, o)
+
+      def unary_- : T = N.negate(t)
+
+      def abs: T = N.abs(t)
+    }
+
+  }
+
+}
+
+object FunctionsForNumeric {
+
+  def signOfTheTimes[T](t: T)(implicit N: Numeric[T]): T = {
     import N._
     times(negate(abs(t)), t)
   }
 
-  class MyNumericInt(i: Int) extends MyNumeric[Int] {
+  def signOfTheTimes2[T: Numeric](t: T): T = {
+    val N = Numeric2[T]
+    import N._
+    times(negate(abs(t)), t)
+  }
+
+  import Numeric2.ops._
+
+  def signOfTheTimes3[T: Numeric](t: T): T = -t.abs * t
+}
+
+object MyNumeric {
+
+  implicit object MyNumericInt extends MyNumeric[Int] {
 
     override def plus(x: Int, y: Int): Int = x + y
 
@@ -49,8 +83,29 @@ object FunctionsForMyNumeric {
     override def compare(x: Int, y: Int): Int = x - y
   }
 
-  implicit def intToMyNumeric(i: Int): MyNumericInt = new MyNumericInt(i)
+  def apply[T](implicit numeric: MyNumeric[T]): MyNumeric[T] = numeric
+
+  object ops {
+
+    implicit class NumericOps[T](t: T)(implicit N: MyNumeric[T]) {
+
+      def +(o: T): T = N.plus(t, o)
+
+      def *(o: T): T = N.times(t, o)
+
+      def unary_- : T = N.negate(t)
+
+      def abs: T = N.abs(t)
+    }
+
+  }
 
 }
 
+object FunctionsForMyNumeric {
+
+  import MyNumeric.ops._
+
+  def signOfTheTimes4[T: MyNumeric](t: T): T = -t.abs * t
+}
 
