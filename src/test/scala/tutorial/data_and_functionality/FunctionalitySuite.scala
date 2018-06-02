@@ -40,7 +40,6 @@ class FunctionalitySuite extends FlatSpec with Matchers {
   "function with my numeric" should "also work" in {
     import tutorial.data_and_functionality.functionality.FunctionsForMyNumeric._
     signOfTheTimes4(12) shouldBe (-144)
-    //signOfTheTimes4(12L) shouldBe (-144L)
   }
 
 

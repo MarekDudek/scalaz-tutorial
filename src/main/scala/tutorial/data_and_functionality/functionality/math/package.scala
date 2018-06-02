@@ -100,19 +100,18 @@ import simulacrum._
 
 object MySecondNumericImpl {
 
-  implicit object MyNumericInt extends MySecondNumeric[Int] {
+  implicit val MySecondNumericInt: MySecondNumeric[Int] = new MySecondNumeric[Int] {
 
-    override def plus(x: Int, y: Int): Int = x + y
+    def plus(x: Int, y: Int): Int = x + y
 
-    override def times(x: Int, y: Int): Int = x * y
+    def times(x: Int, y: Int): Int = x * y
 
-    override def negate(x: Int): Int = -x
+    def negate(x: Int): Int = -x
 
-    override def zero: Int = 0
+    def zero: Int = 0
 
-    override def compare(x: Int, y: Int): Int = x - y
+    def compare(x: Int, y: Int): Int = java.lang.Integer.compare(x, y)
   }
-
 }
 
 object FunctionsForMySecondNumeric {
