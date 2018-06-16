@@ -144,7 +144,7 @@ object FunctionsForMySecondNumeric {
 
 final case class Complex[T](r: T, i: T)
 
-/*
+
 object MySecondNumericComplexImpl {
 
   implicit def numericComplex[T: MySecondNumeric]: MySecondNumeric[Complex[T]] =
@@ -153,18 +153,14 @@ object MySecondNumericComplexImpl {
 
       type C = Complex[T]
 
-      override def plus(x: C, y: C): C = Complex(x.r + y.r, x.i + y.i)
+      override def plus(x: C, y: C): C = ???
 
-      override def times(x: C, y: C): C = Complex(x.r * y.r + (-x.i * y.i), x.r * y.i + x.i * y.r)
+      override def times(x: C, y: C): C = ???
 
-      override def negate(x: C): C = Complex(-x.r, -x.i)
+      override def negate(x: C): C = ???
 
       override def zero: C = Complex(MySecondNumeric[T].zero, MySecondNumeric[T].zero)
 
-      override def compare(x: C, y: C): Int = {
-        val real = MySecondNumeric[T].compare(x.r, y.r)
-        if (real != 0) real
-        else MySecondNumeric[T].compare(x.i, y.i)
-      }
+      override def compare(x: C, y: C): Int = ???
     }
-}*/
+}
