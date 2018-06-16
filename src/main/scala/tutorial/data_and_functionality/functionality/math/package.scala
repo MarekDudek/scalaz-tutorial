@@ -111,6 +111,27 @@ object MySecondNumericImpl {
     def zero: Int = 0
 
     def compare(x: Int, y: Int): Int = java.lang.Integer.compare(x, y)
+
+    override def lt(x: Int, y: Int): Boolean = x < y
+
+    override def gt(x: Int, y: Int): Boolean = x > y
+
+    override def abs(x: Int): Int = java.lang.Math.abs(x)
+  }
+
+  import java.math.{BigDecimal => BD}
+
+  implicit val MySecondNumericBigDecimal: MySecondNumeric[BD] = new MySecondNumeric[BD] {
+
+    override def plus(x: BD, y: BD): BD = x.add(y)
+
+    override def times(x: BD, y: BD): BD = x.multiply(y)
+
+    override def negate(x: BD): BD = x.negate()
+
+    override def zero: BD = BD.ZERO
+
+    override def compare(x: BD, y: BD): Int = x.compareTo(y)
   }
 }
 
@@ -120,3 +141,30 @@ object FunctionsForMySecondNumeric {
 
   def signOfTheTimes[T: MySecondNumeric](t: T): T = (-t.abs) * t
 }
+
+final case class Complex[T](r: T, i: T)
+
+/*
+object MySecondNumericComplexImpl {
+
+  implicit def numericComplex[T: MySecondNumeric]: MySecondNumeric[Complex[T]] =
+
+    new MySecondNumeric[Complex[T]] {
+
+      type C = Complex[T]
+
+      override def plus(x: C, y: C): C = Complex(x.r + y.r, x.i + y.i)
+
+      override def times(x: C, y: C): C = Complex(x.r * y.r + (-x.i * y.i), x.r * y.i + x.i * y.r)
+
+      override def negate(x: C): C = Complex(-x.r, -x.i)
+
+      override def zero: C = Complex(MySecondNumeric[T].zero, MySecondNumeric[T].zero)
+
+      override def compare(x: C, y: C): Int = {
+        val real = MySecondNumeric[T].compare(x.r, y.r)
+        if (real != 0) real
+        else MySecondNumeric[T].compare(x.i, y.i)
+      }
+    }
+}*/

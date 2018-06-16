@@ -42,11 +42,19 @@ class FunctionalitySuite extends FlatSpec with Matchers {
     signOfTheTimes4(12) shouldBe (-144)
   }
 
-
   "function with my second numeric" should "also work" in {
     import tutorial.data_and_functionality.functionality.FunctionsForMySecondNumeric._
     import tutorial.data_and_functionality.functionality.MySecondNumericImpl._
     signOfTheTimes(12) shouldBe (-144)
+  }
+
+  "function with my second numeric" should "also work for big decimal" in {
+    import java.math.{BigDecimal => BD}
+
+    import tutorial.data_and_functionality.functionality.FunctionsForMySecondNumeric._
+    import tutorial.data_and_functionality.functionality.MySecondNumericImpl._
+
+    signOfTheTimes(new BD(12)) shouldBe new BD(-144)
   }
 }
 
